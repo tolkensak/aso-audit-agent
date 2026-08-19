@@ -8,6 +8,13 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 
 <br />
 
+## ▶️ Live Demo
+
+- **URL:** [https://aso-audit-agent-rho.vercel.app](https://aso-audit-agent-rho.vercel.app)
+- **Deployed on:** Vercel
+
+<br />
+
 ## ✨ Features
 
 | Feature | Description |
@@ -18,6 +25,16 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 | 📈&nbsp;**Visual&nbsp;Feedback** | Progress bars, per-dimension scores, and overall score out of 100 with color coding |
 | 💬&nbsp;**Conversational&nbsp;Interface** | Chat-based UX that confirms the app before running the audit |
 | 🤖&nbsp;**AI&nbsp;Powered**&nbsp; | Uses Groq's Mixtral 8x7B model for natural language responses |
+
+<br />
+
+## 🎯 Demo
+
+![Start Screenshot](screenshots/screenshot-1-start.png "Start")
+
+![Confirmation Screenshot](screenshots/screenshot-2-confirmation.png "Confirmation")
+
+![Full info Screenshot](screenshots/screenshot-3-full-info.png "Full info")
 
 <br />
 
