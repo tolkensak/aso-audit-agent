@@ -245,7 +245,16 @@ MIT — feel free to use this project for any purpose.
 
 <br />
 
+## 🔗 Links
+
+GitHub Repository: https://github.com/tolkensak/aso-audit-agent
+
+GitHub Portfolio: https://tolkensak.github.io/tolkensak/
+
+LinkedIn Profile: https://www.linkedin.com/in/tolkyn-akhmetollauly-0a3873a9/
+
+<br />
 
 ---
 
-Made with ❤️ by Tolkyn
+Made with ❤️ by Tolkyn Akhmetollauly
