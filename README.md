@@ -6,14 +6,23 @@
 
 An AI-powered App Store Optimization audit tool that analyzes iOS app listings and provides actionable recommendations to improve visibility and conversions.
 
+<br />
+
 ## ✨ Features
 
 - 🔍 **Smart URL Parsing** — Paste any Apple App Store URL, and the agent extracts the app ID automatically
+
 - 📊 **Comprehensive Audits** — Scores 7 ASO dimensions (Title, Subtitle, Keywords, Description, Screenshots, Ratings, Icon) with weighted scoring
+
 - 🎯 **Actionable Insights** — Prioritized recommendations divided into Quick Wins, High-Impact Changes, and Strategic Improvements
+
 - 📈 **Visual Feedback** — Progress bars, per-dimension scores, and overall score out of 100 with color coding
+
 - 💬 **Conversational Interface** — Chat-based UX that confirms the app before running the audit
+
 - 🤖 **AI-Powered** — Uses Groq's Mixtral 8x7B model for natural language responses
+
+<br />
 
 ## 🚀 Quick Start
 
@@ -71,6 +80,8 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 
 5. Copy the key and add it to your .env.local
 
+<br />
+
 ## 🧠 How It Works
 
 ### 1. URL Parsing & Scraping
@@ -120,6 +131,8 @@ The agent presents:
 
 - **Before/After Examples** — Specific text changes with evidence
 
+<br />
+
 ## 🧪 Testing with Different Apps
 
 The tool works with any Apple App Store URL. Try these:
@@ -130,6 +143,8 @@ The tool works with any Apple App Store URL. Try these:
 | Headspace | https://apps.apple.com/us/app/headspace-meditation/id493145008 |
 | Duolingo | https://apps.apple.com/us/app/duolingo-language-lessons/id570060128 |
 | Calm | https://apps.apple.com/us/app/calm-meditation-sleep-stories/id571800810 |
+
+<br />
 
 ## 🏗️ Architecture
 
@@ -165,6 +180,8 @@ The app maintains conversation state in memory:
 
 - **complete** → Audit complete, accepting follow-up questions
 
+<br />
+
 ## 🛠️ Development
 
 ### Scripts
@@ -184,6 +201,8 @@ The app maintains conversation state in memory:
 
 3. The new dimension will automatically appear in results
 
+<br />
+
 ## 🔧 Environment Variables
 
 | Variable | Description | Required |
@@ -191,6 +210,8 @@ The app maintains conversation state in memory:
 | **OPENAI_API_KEY** | Groq API key | Yes |
 | **OPENAI_BASE_URL** | Groq API endpoint | No (defaults to Groq) |
 | **OPENAI_MODEL** | Model to use | No (defaults to mixtral-8x7b-32768) |
+
+<br />
 
 ## 🤝 Contributing
 
@@ -204,9 +225,13 @@ The app maintains conversation state in memory:
 
 5. Open a Pull Request
 
+<br />
+
 ## 📝 License
 
 MIT — feel free to use this project for any purpose.
+
+<br />
 
 ## 🙏 Acknowledgments
 
