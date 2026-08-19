@@ -12,12 +12,12 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 
 | Feature | Description |
 | :--- | :--- |
-| <nobr>🔍 **Smart URL Parsing**</nobr> | Paste any Apple App Store URL, and the agent extracts the app ID automatically |
+| 🔍&nbsp;**Smart&nbsp;URL&nbsp;Parsing** | Paste any Apple App Store URL, and the agent extracts the app ID automatically |
 | 📊&nbsp;**Comprehensive&nbsp;Audits** | Scores 7 ASO dimensions (Title, Subtitle, Keywords, Description, Screenshots, Ratings, Icon) with weighted scoring |
-| <nobr>🎯 **Actionable Insights**</nobr> | Prioritized recommendations divided into Quick Wins, High-Impact Changes, and Strategic Improvements |
-| <nobr>📈 **Visual Feedback**</nobr> | Progress bars, per-dimension scores, and overall score out of 100 with color coding |
-| <span style="">💬 **Conversational Interface**</span> | Chat-based UX that confirms the app before running the audit |
-| <nobr>🤖 **AI-Powered**</nobr> | Uses Groq's Mixtral 8x7B model for natural language responses |
+| 🎯&nbsp;**Actionable&nbsp;Insights** | Prioritized recommendations divided into Quick Wins, High-Impact Changes, and Strategic Improvements |
+| 📈&nbsp;**Visual&nbsp;Feedback** | Progress bars, per-dimension scores, and overall score out of 100 with color coding |
+| 💬&nbsp;**Conversational&nbsp;Interface** | Chat-based UX that confirms the app before running the audit |
+| 🤖&nbsp;**AI&nbsp;Powered**&nbsp; | Uses Groq's Mixtral 8x7B model for natural language responses |
 
 <br />
 
