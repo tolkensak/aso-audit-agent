@@ -10,7 +10,7 @@ export default function Home() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [conversationId, setConversationId] = useState<string>();
-    const [auditResult, setAuditResult] = useState<AuditResult | null>(null);
+    const [currentAppData, setCurrentAppData] = useState<any>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
@@ -24,6 +24,7 @@ export default function Home() {
         }
     }, [isLoading]);
 
+    // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
@@ -38,7 +39,7 @@ export default function Home() {
         setMessages((prev) => [...prev, userMessage]);
         setInput("");
         setIsLoading(true);
-        setAuditResult(null);
+        setCurrentAppData(null);
 
         try {
             const response = await fetch("/api/chat", {
@@ -58,19 +59,44 @@ export default function Home() {
 
             setConversationId(data.conversationId);
 
+            let assistantContent = "";
+            let assistantAuditResult: AuditResult | undefined = undefined;
+
+            // Handle different response types
+            switch (data.type) {
+                case "confirmation":
+                    setCurrentAppData(data.appData);
+                    assistantContent = data.message;
+                    break;
+
+                case "audit_complete":
+                    assistantAuditResult = data.auditResult;
+                    const scoreEmoji =
+                        data.auditResult.overallScore >= 80
+                            ? "🌟"
+                            : data.auditResult.overallScore >= 60
+                              ? "📈"
+                              : "🚀";
+                    assistantContent = `📊 ASO Audit Complete!\n\nOverall Score: ${data.auditResult.overallScore}/100 ${scoreEmoji}\n\nThe detailed results are shown below.`;
+                    break;
+
+                case "error":
+                    assistantContent = data.message;
+                    break;
+
+                default:
+                    assistantContent = data.message;
+            }
+
             const assistantMessage: ChatMessage = {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: data.message,
+                content: assistantContent,
                 timestamp: new Date(),
-                auditResult: data.auditResult,
+                auditResult: assistantAuditResult,
             };
 
             setMessages((prev) => [...prev, assistantMessage]);
-
-            if (data.auditResult) {
-                setAuditResult(data.auditResult);
-            }
         } catch (error) {
             console.error("Chat error:", error);
             const errorMessage: ChatMessage = {
@@ -83,6 +109,75 @@ export default function Home() {
         } finally {
             setIsLoading(false);
         }
+    };
+
+    // Handle confirmation button clicks
+    const handleConfirmation = (response: "yes" | "no") => {
+        // Set the input value
+        setInput(response);
+
+        // Small delay to ensure state updates, then submit
+        setTimeout(() => {
+            const form = document.querySelector("form");
+            if (form) {
+                form.dispatchEvent(
+                    new Event("submit", { cancelable: true, bubbles: true }),
+                );
+            }
+        }, 50);
+    };
+
+    const renderConfirmationCard = (appData: any) => {
+        if (!appData) return null;
+
+        return (
+            <div className="mt-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                <div className="flex items-start gap-4">
+                    {appData.icon && (
+                        <img
+                            src={appData.icon}
+                            alt={appData.name}
+                            className="w-16 h-16 rounded-xl shadow-sm"
+                        />
+                    )}
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-gray-800">
+                            {appData.name}
+                        </h3>
+                        <div className="text-sm text-gray-600 space-y-0.5">
+                            <div>👨‍💻 {appData.developer}</div>
+                            <div>📂 {appData.category}</div>
+                            <div>🌍 {appData.country}</div>
+                            <div>
+                                ⭐ {appData.rating.toFixed(1)}/5 (
+                                {appData.reviewCount.toLocaleString()} reviews)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="mt-3 text-sm text-gray-700">
+                    <p className="font-medium">
+                        Is this the app you meant to audit?
+                    </p>
+                    <div className="flex gap-2 mt-2">
+                        <button
+                            onClick={() => handleConfirmation("yes")}
+                            disabled={isLoading}
+                            className="px-4 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
+                        >
+                            Yes, proceed →
+                        </button>
+                        <button
+                            onClick={() => handleConfirmation("no")}
+                            disabled={isLoading}
+                            className="px-4 py-1.5 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-sm transition-colors"
+                        >
+                            No, try again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     const renderAuditScore = (result: AuditResult) => {
@@ -263,16 +358,6 @@ export default function Home() {
                             Paste an App Store URL for a comprehensive ASO audit
                         </p>
                     </div>
-                    {auditResult && (
-                        <div className="hidden sm:flex items-center gap-2 text-sm">
-                            <span className="text-gray-400">Score:</span>
-                            <span
-                                className={`font-bold ${auditResult.overallScore >= 80 ? "text-emerald-600" : auditResult.overallScore >= 60 ? "text-amber-600" : "text-rose-600"}`}
-                            >
-                                {auditResult.overallScore}/100
-                            </span>
-                        </div>
-                    )}
                 </div>
             </header>
 
@@ -282,8 +367,9 @@ export default function Home() {
                     {messages.length === 0 ? (
                         <div className="flex items-center justify-center h-[60vh]">
                             <div className="text-center max-w-md">
+                                <div className="text-6xl mb-4">🔍</div>
                                 <h2 className="text-2xl font-semibold text-gray-700 mb-2">
-                                    🔍 Start Your ASO Audit
+                                    Start Your ASO Audit
                                 </h2>
                                 <p className="text-gray-500 mb-4">
                                     Paste any Apple App Store URL to get a
@@ -314,80 +400,17 @@ export default function Home() {
                                     <div
                                         className={`whitespace-pre-wrap text-sm leading-relaxed ${message.role === "user" ? "text-white" : ""}`}
                                     >
-                                        {message.content
-                                            .split("\n")
-                                            .map((line, i) => {
-                                                if (line.startsWith("# ")) {
-                                                    return (
-                                                        <h2
-                                                            key={i}
-                                                            className="text-lg font-bold mt-2 first:mt-0"
-                                                        >
-                                                            {line.slice(2)}
-                                                        </h2>
-                                                    );
-                                                }
-                                                if (line.startsWith("## ")) {
-                                                    return (
-                                                        <h3
-                                                            key={i}
-                                                            className="text-md font-semibold mt-2 first:mt-0"
-                                                        >
-                                                            {line.slice(3)}
-                                                        </h3>
-                                                    );
-                                                }
-                                                if (
-                                                    line.startsWith("**") &&
-                                                    line.endsWith("**")
-                                                ) {
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            className="font-bold"
-                                                        >
-                                                            {line.slice(2, -2)}
-                                                        </div>
-                                                    );
-                                                }
-                                                if (line.startsWith("• ")) {
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            className="ml-4"
-                                                        >
-                                                            • {line.slice(2)}
-                                                        </div>
-                                                    );
-                                                }
-                                                if (line.startsWith("   ")) {
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            className="ml-8 text-gray-600"
-                                                        >
-                                                            {line}
-                                                        </div>
-                                                    );
-                                                }
-                                                if (line.trim() === "") {
-                                                    return (
-                                                        <div
-                                                            key={i}
-                                                            className="h-1"
-                                                        />
-                                                    );
-                                                }
-                                                return (
-                                                    <p
-                                                        key={i}
-                                                        className="my-0.5"
-                                                    >
-                                                        {line}
-                                                    </p>
-                                                );
-                                            })}
+                                        {message.content}
                                     </div>
+
+                                    {/* Render confirmation card if we have app data and this is the latest message */}
+                                    {message.role === "assistant" &&
+                                        currentAppData &&
+                                        message.id ===
+                                            messages[messages.length - 1]?.id &&
+                                        renderConfirmationCard(currentAppData)}
+
+                                    {/* Render audit results if present */}
                                     {message.auditResult &&
                                         renderAuditScore(message.auditResult)}
                                 </div>
@@ -434,13 +457,13 @@ export default function Home() {
                         placeholder="Paste an App Store URL or ask a question..."
                         className="flex-1 px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-gray-50/50 transition-shadow"
                         disabled={isLoading}
-                    />{" "}
+                    />
                     <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
                         className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-all shadow-sm hover:shadow-md"
                     >
-                        {isLoading ? "Thinking..." : "Submit"}
+                        {isLoading ? "Thinking..." : "Send"}
                     </button>
                 </div>
             </form>

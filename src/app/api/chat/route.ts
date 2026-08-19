@@ -41,8 +41,11 @@ export async function POST(request: Request) {
         const urlMatch = message.match(
             /https:\/\/apps\.apple\.com\/[a-z]{2}\/app\/[^\/]+\/id\d+/,
         );
-        let aiResponse = "";
-        let parsedData = null;
+        let responseData: any = {
+            type: "message",
+            content: "",
+            conversationId: sessionId,
+        };
 
         if (urlMatch && session.step === "idle") {
             const url = urlMatch[0];
@@ -50,24 +53,35 @@ export async function POST(request: Request) {
             session.step = "scraping";
 
             try {
-                // Scrape app metadata
                 const appData = await scrapeAppStore(url);
                 session.appMetadata = appData;
-
-                // Generate confirmation response
-                aiResponse = `I found this app in the App Store:
-
-📱 **${appData.name}**
-👨‍💻 Developer: ${appData.developer}
-📂 Category: ${appData.category}
-🌍 Country: ${appData.country.toUpperCase()}
-⭐ Rating: ${appData.rating.toFixed(1)}/5 (${appData.reviewCount} reviews)
-
-**Is this the app you meant to audit?**`;
-
                 session.step = "confirming";
+
+                // Return structured data for confirmation
+                responseData = {
+                    type: "confirmation",
+                    conversationId: sessionId,
+                    appData: {
+                        name: appData.name,
+                        developer: appData.developer,
+                        category: appData.category,
+                        country: appData.country.toUpperCase(),
+                        rating: appData.rating,
+                        reviewCount: appData.reviewCount,
+                        icon: appData.icon,
+                    },
+                    message: `I found this app in the App Store. Is this the one you meant to audit?`,
+                };
             } catch (error) {
-                aiResponse = `I couldn't fetch the app details. Please make sure the URL is correct and try again.\n\nError: ${error instanceof Error ? error.message : "Unknown error"}`;
+                responseData = {
+                    type: "error",
+                    conversationId: sessionId,
+                    message: `I couldn't fetch the app details. Please make sure the URL is correct and try again.`,
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : "Unknown error",
+                };
                 session.step = "idle";
             }
         } else if (
@@ -83,132 +97,84 @@ export async function POST(request: Request) {
                 "proceed",
             ].some((word) => message.toLowerCase().includes(word))
         ) {
-            // User confirmed - run the audit
             if (!session.appMetadata) {
-                aiResponse =
-                    "I'm sorry, I don't have the app data. Please paste the URL again.";
+                responseData = {
+                    type: "error",
+                    conversationId: sessionId,
+                    message:
+                        "I'm sorry, I don't have the app data. Please paste the URL again.",
+                };
                 session.step = "idle";
             } else {
                 session.step = "auditing";
-
-                // Run the audit
                 const auditResult = performAudit(session.appMetadata);
                 session.auditResult = auditResult;
-
-                // Format the audit results for display
-                const scoreColor =
-                    auditResult.overallScore >= 80
-                        ? "🟢"
-                        : auditResult.overallScore >= 60
-                          ? "🟡"
-                          : "🔴";
-                const scoreEmoji =
-                    auditResult.overallScore >= 80
-                        ? "Excellent!"
-                        : auditResult.overallScore >= 60
-                          ? "Good, but room for improvement."
-                          : "Needs significant work.";
-
-                let dimensionScores = "";
-                auditResult.dimensions.forEach((d) => {
-                    const bar =
-                        "█".repeat(Math.round(d.score)) +
-                        "░".repeat(10 - Math.round(d.score));
-                    dimensionScores += `\n   ${d.name}: ${d.score}/10 ${bar}`;
-                });
-
-                let quickWinsText = "";
-                if (auditResult.quickWins.length > 0) {
-                    quickWinsText =
-                        "\n\n**🚀 Quick Wins (High Impact, Low Effort):**\n";
-                    auditResult.quickWins.slice(0, 3).forEach((rec, i) => {
-                        quickWinsText += `\n${i + 1}. **${rec.title}**\n   ${rec.description}`;
-                        if (rec.beforeExample) {
-                            quickWinsText += `\n   ❌ Before: "${rec.beforeExample}"`;
-                        }
-                        if (rec.afterExample) {
-                            quickWinsText += `\n   ✅ After: "${rec.afterExample}"`;
-                        }
-                    });
-                }
-
-                let highImpactText = "";
-                if (auditResult.highImpactChanges.length > 0) {
-                    highImpactText =
-                        "\n\n**💪 High-Impact Changes (Require More Effort):**\n";
-                    auditResult.highImpactChanges
-                        .slice(0, 3)
-                        .forEach((rec, i) => {
-                            highImpactText += `\n${i + 1}. **${rec.title}**\n   ${rec.description}\n   📊 Evidence: ${rec.evidence}`;
-                        });
-                }
-
-                aiResponse = `# 📊 ASO Audit Complete!
-
-## Overall Score: ${auditResult.overallScore}/100 ${scoreEmoji}
-
-### Dimension Scores:${dimensionScores}
-
-${quickWinsText}
-${highImpactText}
-
-**💡 Strategic Recommendations:**
-${
-    auditResult.strategicRecommendations.length > 0
-        ? auditResult.strategicRecommendations
-              .slice(0, 2)
-              .map(
-                  (rec, i) =>
-                      `\n${i + 1}. **${rec.title}**\n   ${rec.description}`,
-              )
-              .join("\n")
-        : "\n   (No strategic recommendations at this time)"
-}
-
-Would you like to dive deeper into any specific dimension?`;
-
                 session.step = "complete";
+
+                // Return full structured audit data
+                responseData = {
+                    type: "audit_complete",
+                    conversationId: sessionId,
+                    auditResult: auditResult,
+                    summary: {
+                        overallScore: auditResult.overallScore,
+                        quickWinsCount: auditResult.quickWins.length,
+                        highImpactCount: auditResult.highImpactChanges.length,
+                        strategicCount:
+                            auditResult.strategicRecommendations.length,
+                    },
+                };
             }
         } else if (session.step === "confirming") {
-            // User didn't confirm or said no
-            aiResponse = `No problem! Please paste the correct App Store URL when you're ready, or type "help" for assistance.`;
+            responseData = {
+                type: "message",
+                conversationId: sessionId,
+                message: `No problem! Please paste the correct App Store URL when you're ready, or type "help" for assistance.`,
+            };
             session.step = "idle";
         } else if (
             session.step === "complete" &&
             message.toLowerCase().includes("help")
         ) {
-            aiResponse = `I can help you with:
+            responseData = {
+                type: "message",
+                conversationId: sessionId,
+                message: `I can help you with:
 • Paste an App Store URL to start an ASO audit
 • Ask about specific ASO dimensions (Title, Subtitle, Keywords, etc.)
 • Get recommendations for improving your app listing
 
-Try pasting a URL like: https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580`;
-        } else if (session.step === "complete") {
-            // Continue conversation about the audit
+Try pasting a URL like: https://apps.apple.com/us/app/spotify-music-and-podcasts/id324684580`,
+            };
+        } else if (session.step === "complete" && session.auditResult) {
+            // Handle follow-up questions
             const context = `The user just completed an ASO audit. Their app is "${session.appMetadata?.name}". 
       The overall score was ${session.auditResult?.overallScore}/100.
       Respond to their question: "${message}"`;
 
-            aiResponse = await generateAIResponse([
+            const aiMessage = await generateAIResponse([
                 { role: "user", content: context },
             ]);
+
+            responseData = {
+                type: "message",
+                conversationId: sessionId,
+                message: aiMessage,
+            };
         } else {
-            // Default response using AI
-            aiResponse = await generateAIResponse([
+            // Default response
+            const aiMessage = await generateAIResponse([
                 { role: "user", content: message },
             ]);
+
+            responseData = {
+                type: "message",
+                conversationId: sessionId,
+                message: aiMessage,
+            };
         }
 
-        // Store the assistant response
-        const assistantMessage: ChatMessage = {
-            id: uuidv4(),
-            role: "assistant",
-            content: aiResponse,
-            timestamp: new Date(),
-            auditResult: session.auditResult,
-        };
-
-        // Clean up old sessions (keep last 100)
+        // Clean up old sessions
         if (sessions.size > 100) {
             const keys = Array.from(sessions.keys());
             for (let i = 0; i < keys.length - 100; i++) {
@@ -216,17 +182,15 @@ Try pasting a URL like: https://apps.apple.com/us/app/spotify-music-and-podcasts
             }
         }
 
-        return NextResponse.json({
-            message: aiResponse,
-            conversationId: sessionId,
-            auditResult: session.auditResult,
-        });
+        return NextResponse.json(responseData);
     } catch (error) {
         console.error("Chat API error:", error);
-        const errorMessage =
-            error instanceof Error ? error.message : "Unknown error";
         return NextResponse.json(
-            { error: `Failed to process chat message: ${errorMessage}` },
+            {
+                type: "error",
+                error: error instanceof Error ? error.message : "Unknown error",
+                message: "Failed to process chat message. Please try again.",
+            },
             { status: 500 },
         );
     }
