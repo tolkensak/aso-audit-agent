@@ -103,7 +103,6 @@ The audit scores 7 dimensions on a 0–10 scale:
 | Screenshots | 15% | All 10 slots used, first 2-3 communicate value |
 | Ratings & Reviews | 15% | Average rating, recent trend, developer responses |
 | Icon | 10% | Distinctive in search, clear at small sizes |
-|
 
 The weighted sum produces an **Overall ASO Score** out of 100.
 
@@ -131,7 +130,6 @@ The tool works with any Apple App Store URL. Try these:
 | Headspace | https://apps.apple.com/us/app/headspace-meditation/id493145008 |
 | Duolingo | https://apps.apple.com/us/app/duolingo-language-lessons/id570060128 |
 | Calm | https://apps.apple.com/us/app/calm-meditation-sleep-stories/id571800810 |
-|
 
 ## 🏗️ Architecture
 
@@ -177,7 +175,6 @@ The app maintains conversation state in memory:
 | **npm start** | Start production server |
 | **npm run lint** | Run ESLint |
 | **npm run type-check** | Run TypeScript type checking |
-|
 
 ### Adding New Audit Dimensions
 
@@ -194,7 +191,6 @@ The app maintains conversation state in memory:
 | **OPENAI_API_KEY** | Groq API key | Yes |
 | **OPENAI_BASE_URL** | Groq API endpoint | No (defaults to Groq) |
 | **OPENAI_MODEL** | Model to use | No (defaults to mixtral-8x7b-32768) |
-|
 
 ## 🤝 Contributing
 
