@@ -12,7 +12,7 @@ export async function generateAIResponse(
 ) {
     try {
         const response = await openai.chat.completions.create({
-            model: process.env.OPENAI_MODEL || "mixtral-8x7b-32768",
+            model: process.env.OPENAI_MODEL || "llama-3.3-70b-versatile", // Updated default
             messages: [
                 {
                     role: "system",
