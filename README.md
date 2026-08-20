@@ -32,9 +32,9 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 
 ![Start Screenshot](screenshots/screenshot-1-start.png "Start")
 
-![Confirmation Screenshot](screenshots/screenshot-2-confirmation.png "Confirmation")
+![Confirmation](screenshots/screenshot-2-confirmation.png "Confirmation")
 
-![Full info Screenshot](screenshots/screenshot-3-full-info.png "Full info")
+![Full audit](screenshots/screenshot-3-full-audit.png "Full audit")
 
 <br />
 
