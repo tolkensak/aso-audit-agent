@@ -24,7 +24,7 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
 | 🎯&nbsp;**Actionable&nbsp;Insights** | Prioritized recommendations divided into Quick Wins, High-Impact Changes, and Strategic Improvements |
 | 📈&nbsp;**Visual&nbsp;Feedback** | Progress bars, per-dimension scores, and overall score out of 100 with color coding |
 | 💬&nbsp;**Conversational&nbsp;Interface** | Chat-based UX that confirms the app before running the audit |
-| 🤖&nbsp;**AI&nbsp;Powered**&nbsp; | Uses Groq's Mixtral 8x7B model for natural language responses |
+| 🤖&nbsp;**AI&nbsp;Powered**&nbsp; | Uses Groq's llama 3.3 model for natural language responses |
 
 <br />
 
@@ -71,7 +71,7 @@ An AI-powered App Store Optimization audit tool that analyzes iOS app listings a
     ```env
     OPENAI_API_KEY=your_groq_api_key_here
     OPENAI_BASE_URL=https://api.groq.com/openai/v1
-    OPENAI_MODEL=mixtral-8x7b-32768
+    OPENAI_MODEL=llama-3.3-70b-versatile
     ```
 
 4. **Run the development server**
@@ -223,7 +223,7 @@ The app maintains conversation state in memory:
 | :--- | :--- | :--- |
 | **OPENAI_API_KEY** | Groq API key | Yes |
 | **OPENAI_BASE_URL** | Groq API endpoint | No (defaults to Groq) |
-| **OPENAI_MODEL** | Model to use | No (defaults to mixtral-8x7b-32768) |
+| **OPENAI_MODEL** | Model to use | No (defaults to llama-3.3-70b-versatile) |
 
 <br />
 
