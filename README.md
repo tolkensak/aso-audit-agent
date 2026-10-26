@@ -1,4 +1,4 @@
-# ASO Audit Agent
+# 📱 ASO Audit Agent
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)](https://nextjs.org/)
